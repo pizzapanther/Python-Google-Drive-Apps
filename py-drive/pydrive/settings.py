@@ -143,3 +143,17 @@ LOGGING = {
         },
     }
 }
+
+GOOGLE_AUTH_URI = "https://accounts.google.com/o/oauth2/auth"
+GOOGLE_TOKEN_URI = "https://accounts.google.com/o/oauth2/token"
+
+USERID_COOKIE = 'pydriveUserId'
+MAX_AGE = 60 * 60 * 36  #36 hours
+
+ALL_SCOPES = (
+  'https://www.googleapis.com/auth/drive '
+  'https://www.googleapis.com/auth/userinfo.email '
+  'https://www.googleapis.com/auth/userinfo.profile '
+)
+
+from pydrive.settings_private import *

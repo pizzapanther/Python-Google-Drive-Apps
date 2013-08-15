@@ -3,3 +3,5 @@
 *.pyc
 local_settings.py
 start_*.bsh
+py-drive/pydrive/settings_private.py
+
