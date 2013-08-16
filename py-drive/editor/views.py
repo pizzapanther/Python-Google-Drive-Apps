@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from django import http
 from django.conf import settings
 from django.template.response import TemplateResponse
+from django.views.decorators.csrf import csrf_exempt
 
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.client import FlowExchangeError
@@ -104,3 +105,64 @@ def home (request):
   )
   return response
   
+@csrf_exempt
+def shatner (request):
+  da = DriveAuth(request)
+  creds = da.get_session_credentials()
+  if creds is None:
+    return http.HttpResponseForbidden('Login Again')
+    
+  task = request.POST.get('task', '')
+  if task in ('open', 'save'):
+    service = CreateService('drive', 'v2', creds)
+    
+    if service is None:
+      return http.HttpResponseServerError('Something broke')
+      
+    if task == 'open':
+      file_id = request.POST.get('file_id', '')
+      if file_id:
+        try:
+          f = service.files().get(fileId=file_id).execute()
+          
+        except AccessTokenRefreshError:
+          return http.HttpResponseForbidden('Login Again')
+          
+        downloadUrl = f.get('downloadUrl')
+        f['content'] = ''
+        if downloadUrl:
+          resp, f['content'] = service._http.request(downloadUrl)
+          
+        return http.HttpResponse(
+          json.dumps({'status': 'ok', 'file': f}),
+          content_type='application/json'
+        )
+        
+    elif task == 'save':
+      mt = 'text/plain'
+      name = request.POST.get('name')
+      content = request.POST.get('content', '')
+      file_id = request.POST.get('file_id', '')
+        
+      resource = {'title': name, 'mimeType': mt}
+      
+      file = MediaInMemoryUpload(content.encode('utf-8'), mt)
+      try:
+        google = service.files().update(
+          fileId=file_id,
+          newRevision=True,
+          body=resource,
+          media_body=file,
+          useContentAsIndexableText=True,
+        ).execute()
+        
+      except AccessTokenRefreshError:
+        return http.HttpResponseForbidden('Login Again')
+        
+      return http.HttpResponse(
+        json.dumps({'status': 'ok'}),
+        content_type='application/json'
+      )
+      
+    return http.HttpResponseBadRequest('Bad Request')
+    

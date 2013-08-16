@@ -1,7 +1,16 @@
 <!doctype html>{% load url from future %}{% load static %}
 <html>
   <head>
+    <link rel="stylesheet" href="{% static "bootstrap/css/bootstrap.min.css" %}"></link>
     <title>PyDrive Drive Test App</title>
+    <script src="https://www.google.com/jsapi" charset="utf-8"></script>
+    <script type="text/javascript" src="{% static "jquery.js" %}"></script>
+    <script type="text/javascript" src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    <script type="text/javascript">
+      var CLIENT_ID = '{{ CLIENT_ID }}';
+      google.load('picker', '1');
+    </script>
+    <script type="text/javascript" src="{% static "default.js" %}"></script>
   </head>
   <body>
     <div class="container">
@@ -10,6 +19,21 @@
           <h2>
             PyDrive Text Editor
           </h2>
+          <p>
+            <a href="#" onclick="open_file_dialog()" class="btn">
+              <i class="icon-search"></i> 
+              Open
+            </a>
+          </p>
+          <h4>File Open: <span id="filename">None</span></h4>
+          <p>
+            <textarea name="textedit" id="textedit" style="width: 700px; height: 450px;"></textarea>
+            <br>
+            <a href="#" onclick="save_file()" class="btn">
+              <i class="icon-download"></i> 
+              Save
+            </a>
+          </p>
         </div>
       </div>
     </div>
